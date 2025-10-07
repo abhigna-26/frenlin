@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freinlin - Men's Clothing E-commerce</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        // Custom Tailwind Configuration (Burgundy, Black, and Grey)
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-burgundy': '#8B0000',   /* Deep Burgundy - Main Accent, Bold CTAs */
+                        'dark-charcoal': '#181818',      /* Near Black - Headings, Footer BG, Text */
+                        'light-grey': '#F5F5F5',         /* Soft Light Grey - Section backgrounds */
+                        'off-white': '#FFFFFF',          /* Pure White - Product Cards, Main BG */
+                        'talent-orange': '#FF8C00',      /* FLOATING ICON COLOR (Retained in JS for potential fallback, but CSS uses primary-burgundy) */
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'heading': ['Montserrat', 'sans-serif'] 
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* FONT STYLES */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F5; /* light-grey */
+            color: #181818; /* dark-charcoal */
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Hero Section Styling (Dynamic Element) */
+        .hero-bg {
+            background-image: url('main.webp'); 
+            background-position: center;
+            background-size: cover;
+            position: relative;
+        }
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(24, 24, 24, 0.85), rgba(24, 24, 24, 0.2)); /* Dark overlay */
+            z-index: 1;
+        }
+        
+        /* CORRECTED LOGO STYLING: Smaller and constrained height */
+        .header-logo-img {
+            height: 32px; 
+            max-width: 100%; 
+            width: auto;     
+            object-fit: contain; 
+        }
+
+        /* Footer Logo Styling (Talentronauts) */
+        .footer-talentronaut-logo {
+            height: 20px; 
+            width: auto;
+            object-fit: contain;
+            filter: brightness(1.8); /* Lighten for visibility on dark background */
+            margin-left: 8px;
+        }
+        
+        /* FLOATING TALENTRONAUT ICON (COLOR ADJUSTED) */
+        .float-talentronaut {
+            position: fixed;
+            bottom: 1.5rem; 
+            right: 1.5rem; 
+            z-index: 60; 
+            background-color: #8B0000; /* PRIMARY BURGUNDY COLOR */
+            animation: float 4s ease-in-out infinite; 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem; 
+            border-radius: 9999px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Stronger shadow for floating effect */
+        }
+        .float-talentronaut img {
+            height: 32px; /* h-8 */
+            width: 32px;  /* w-8 */
+            filter: brightness(3); /* Ensures logo is pure white/light against dark background */
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Product Card Hover Animation (Lift and Scale) */
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        }
+
+        /* TOAST NOTIFICATION STYLES */
+        #toast-notification {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 70;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            transform: translateY(-20px);
+        }
+        #toast-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Scroll Reveal Animation */
+        .hidden-item {
+            opacity: 0;
+            filter: blur(2px);
+            transform: translateY(20px);
+            transition: all 0.9s cubic-bezier(0.17, 0.55, 0.55, 1);
+        }
+        .show-item {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+
+        /* Custom text selection color */
+        ::selection {
+            background: #8B0000; /* Primary Burgundy */
+            color: #FFFFFF;     /* Pure White */
+        }
+    </style>
+</head>
+
+<body class="bg-light-grey text-dark-charcoal antialiased overflow-x-hidden">
+
+    <div id="toast-notification" class="bg-primary-burgundy text-off-white p-4 rounded-lg shadow-xl flex items-center space-x-3">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span id="toast-message">Item successfully added to cart!</span>
+    </div>
+
+    <a href="https://www.talentronaut.in/" target="_blank"
+        class="float-talentronaut hover:bg-dark-charcoal transition duration-300"
+        aria-label="Promoting Talentronaut - click to visit Talentronaut website">
+        
+        <img src="logo.jpeg" alt="Talentronauts Logo" class="object-contain">
+    </a>
+
+    <header class="sticky top-0 z-40 bg-off-white/95 backdrop-blur-md shadow-md border-b border-light-grey">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            
+            <div class="flex items-center">
+                <a href="#hero" class="flex items-center group space-x-2">
+                    
+                    <img src="frenlogo.png" alt="Freinlin Logo" class="header-logo-img">
+                    <span class="text-3xl font-heading font-extrabold text-dark-charcoal transition duration-300">FREINLIN</span>
+                </a>
+            </div>
+
+            <div class="hidden md:flex space-x-8 text-lg font-semibold">
+                <a href="#featured" class="text-dark-charcoal hover:text-primary-burgundy transition duration-300">Shop New</a>
+                <a href="#categories" class="text-dark-charcoal hover:text-primary-burgundy transition duration-300">Categories</a>
+                <a href="#story" class="text-dark-charcoal hover:text-primary-burgundy transition duration-300">Our Story</a>
+                <a href="#contact" class="text-dark-charcoal hover:text-primary-burgundy transition duration-300">Contact</a>
+                <a href="#cart-section" id="desktop-cart-link" class="text-off-white bg-primary-burgundy px-6 py-2 rounded-full hover:bg-dark-charcoal transition duration-300 shadow-md">Cart (0)</a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-primary-burgundy hover:text-dark-charcoal focus:outline-none">
+                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </nav>
+
+        <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 bg-light-grey shadow-lg">
+            <a href="#featured" class="block px-3 py-2 rounded-md text-base font-medium text-dark-charcoal hover:bg-off-white hover:text-primary-burgundy">Shop New</a>
+            <a href="#categories" class="block px-3 py-2 rounded-md text-base font-medium text-dark-charcoal hover:bg-off-white hover:text-primary-burgundy">Categories</a>
+            <a href="#story" class="block px-3 py-2 rounded-md text-base font-medium text-dark-charcoal hover:bg-off-white hover:text-primary-burgundy">Our Story</a>
+            <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-dark-charcoal hover:bg-off-white hover:text-primary-burgundy">Contact</a>
+            <a href="#cart-section" id="mobile-cart-link" class="block px-3 py-2 rounded-md text-base font-medium text-off-white bg-primary-burgundy hover:bg-dark-charcoal mt-2">Cart (0)</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="relative hero-bg py-40 md:py-60 overflow-hidden">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-20 relative text-center">
+                <div class="hidden-item" data-delay="0.1">
+                    <h1 class="text-7xl sm:text-8xl lg:text-9xl font-heading font-extrabold leading-none mb-6 text-white tracking-tight">
+                        Mumbai Style. <br> Nationwide Access.
+                    </h1>
+                    <p class="text-xl sm:text-2xl font-medium mb-10 max-w-3xl mx-auto text-gray-200">
+                        The finest men's apparel, now shipping from our Govandi shop directly to you across India.
+                    </p>
+                    <a href="#featured"
+                        class="inline-block px-12 py-5 text-xl font-bold text-off-white bg-primary-burgundy rounded-lg shadow-2xl hover:bg-dark-charcoal transform hover:scale-105 transition duration-300">
+                        View Latest Collection
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="featured" class="py-24 md:py-36 bg-off-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-5xl font-heading font-bold text-center text-dark-charcoal mb-16 hidden-item" data-delay="0.1">
+                    Featured: The Urban Essentials
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+                    
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hidden-item product-card" data-delay="0.2">
+                        <img src="classic.webp" alt="Men's Casual Shirt" class="w-full h-80 object-cover">
+                        <div class="p-4 text-center">
+                            <h3 class="text-xl font-semibold text-dark-charcoal mb-1">Classic Oxford Shirt</h3>
+                            <p class="text-gray-600 mb-3">Breathable Cotton</p>
+                            <span class="text-2xl font-bold text-primary-burgundy">₹ 1,599</span>
+                            <button onclick="addToCart('Classic Oxford Shirt', 1599)" data-name="Classic Oxford Shirt" data-price="1599" class="mt-3 w-full py-2 bg-primary-burgundy text-white rounded-lg hover:bg-dark-charcoal transition">Add to Cart</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hidden-item product-card" data-delay="0.4">
+                        <img src="denim.jpeg" alt="Dark Wash Denim" class="w-full h-80 object-cover">
+                        <div class="p-4 text-center">
+                            <h3 class="text-xl font-semibold text-dark-charcoal mb-1">Slim Fit Denim</h3>
+                            <p class="text-gray-600 mb-3">Dark Navy Wash</p>
+                            <span class="text-2xl font-bold text-primary-burgundy">₹ 2,200</span>
+                            <button onclick="addToCart('Slim Fit Denim', 2200)" data-name="Slim Fit Denim" data-price="2200" class="mt-3 w-full py-2 bg-primary-burgundy text-white rounded-lg hover:bg-dark-charcoal transition">Add to Cart</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hidden-item product-card" data-delay="0.6">
+                        <img src="tee2.webp" alt="Graphic T-Shirt" class="w-full h-80 object-cover">
+                        <div class="p-4 text-center">
+                            <h3 class="text-xl font-semibold text-dark-charcoal mb-1">Minimalist Tee</h3>
+                            <p class="text-gray-600 mb-3">Premium Cotton</p>
+                            <span class="text-2xl font-bold text-primary-burgundy">₹ 899</span>
+                            <button onclick="addToCart('Minimalist Tee', 899)" data-name="Minimalist Tee" data-price="899" class="mt-3 w-full py-2 bg-primary-burgundy text-white rounded-lg hover:bg-dark-charcoal transition">Add to Cart</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hidden-item product-card" data-delay="0.8">
+                        <img src="bomber.jpeg" alt="Lightweight Jacket" class="w-full h-80 object-cover">
+                        <div class="p-4 text-center">
+                            <h3 class="text-xl font-semibold text-dark-charcoal mb-1">Lightweight Bomber</h3>
+                            <p class="text-gray-600 mb-3">Urban Style</p>
+                            <span class="text-2xl font-bold text-primary-burgundy">₹ 3,499</span>
+                            <button onclick="addToCart('Lightweight Bomber', 3499)" data-name="Lightweight Bomber" data-price="3499" class="mt-3 w-full py-2 bg-primary-burgundy text-white rounded-lg hover:bg-dark-charcoal transition">Add to Cart</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="text-center mt-16 hidden-item" data-delay="1.0">
+                    <a href="#categories" class="inline-block px-10 py-4 text-xl font-bold text-white bg-dark-charcoal rounded-full hover:bg-primary-burgundy transition duration-300">
+                        View All Collections
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="categories" class="py-24 md:py-36 bg-light-grey text-center">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-5xl font-heading font-bold text-center text-dark-charcoal mb-16 hidden-item" data-delay="0.1">
+                    Shop by Style
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    
+                    <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl product-card transition duration-300 hidden-item" data-delay="0.2">
+                        <img src="formals.webp" alt="Formal Wear" class="rounded-lg mb-4 w-full h-32 object-cover border border-light-grey">
+                        <h3 class="text-xl font-heading font-semibold text-dark-charcoal">Formal Wear</h3>
+                    </div>
+
+                    <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl product-card transition duration-300 hidden-item" data-delay="0.4">
+                        <img src="casualtees.webp" alt="Casual Wear" class="rounded-lg mb-4 w-full h-32 object-cover border border-light-grey">
+                        <h3 class="text-xl font-heading font-semibold text-dark-charcoal">Casual Tees</h3>
+                    </div>
+
+                    <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl product-card transition duration-300 hidden-item" data-delay="0.6">
+                        <img src="active.webp" alt="Active Wear" class="rounded-lg mb-4 w-full h-32 object-cover border border-light-grey">
+                        <h3 class="text-xl font-heading font-semibold text-dark-charcoal">Active Wear</h3>
+                    </div>
+
+                    <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl product-card transition duration-300 hidden-item" data-delay="0.8">
+                        <img src="foot.jpeg" alt="Accessories" class="rounded-lg mb-4 w-full h-32 object-cover border border-light-grey">
+                        <h3 class="text-xl font-heading font-semibold text-dark-charcoal">Footwear</h3>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        
+        <section id="story" class="py-24 md:py-36 bg-dark-charcoal text-off-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    
+                    <div class="hidden-item" data-delay="0.2">
+                        <h2 class="text-5xl font-heading font-bold mb-6 text-primary-burgundy">From Govandi to India</h2>
+                        <p class="text-lg text-gray-300 leading-relaxed mb-4">
+                            We've been running Freinlin for two years with passion, and though it hasn't been easy, our commitment hasn't wavered. We recently opened our first physical shop in **Govandi, Mumbai**, and that dedication is now fueling our digital expansion.
+                        </p>
+                        <p class="text-lg text-gray-300 leading-relaxed mb-4">
+                            Our goal is simple: to bring the quality and style available in our Mumbai shop to every corner of India. We're leveraging social media and digital platforms to make that vision a reality.
+                        </p>
+                        <p class="text-lg font-semibold text-light-grey">
+                            Founder: Mohd Asif | Location: Mumbai, India
+                        </p>
+                    </div>
+                    
+                    <div class="hidden-item" data-delay="0.4">
+                        <img src="tailor.avif" alt="Tailor working on clothing" class="rounded-xl shadow-2xl w-full h-auto border-4 border-primary-burgundy">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cart-section" class="py-24 md:py-36 bg-light-grey border-t-4 border-primary-burgundy/50">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-5xl font-heading font-bold text-center text-dark-charcoal mb-12 hidden-item" data-delay="0.1">
+                    Your Shopping Cart (<span id="cart-counter-display">0</span> Items)
+                </h2>
+                
+                <div id="cart-content" class="bg-off-white p-6 rounded-xl shadow-xl hidden-item border border-light-grey" data-delay="0.3">
+                    
+                    <div id="cart-item-list" class="space-y-4">
+                        </div>
+
+                    <div id="cart-footer" class="mt-6 pt-4 border-t border-primary-burgundy/30">
+                        <div class="flex justify-between font-bold text-2xl text-dark-charcoal">
+                            <span>Subtotal:</span>
+                            <span id="cart-total">₹ 0</span>
+                        </div>
+                        <div class="mt-6 text-center">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-16 md:py-24 bg-light-grey">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center hidden-item" data-delay="0.1">
+                <h2 class="text-4xl font-heading font-bold text-dark-charcoal mb-6">Connect with Freinlin</h2>
+                <p class="text-xl text-gray-700 mb-8">
+                    Contact us for order inquiries, sizing questions, or support.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <a href="https://wa.me/919930399008" target="_blank"
+                        class="inline-block px-8 py-3 text-lg font-bold text-white bg-primary-burgundy rounded-full hover:bg-dark-charcoal transition duration-300 shadow-lg">
+                        WhatsApp Us (9930399008)
+                    </a>
+                    <a href="mailto:asif24x6@gmail.com"
+                        class="inline-block px-8 py-3 text-lg font-bold text-dark-charcoal border-2 border-dark-charcoal rounded-full hover:bg-dark-charcoal hover:text-white transition duration-300">
+                        Email Us
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark-charcoal text-off-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-primary-burgundy/50 pb-8 mb-8">
+                
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl font-heading font-bold">FREINLIN</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Mumbai style, nationwide delivery. Quality clothing since 2023.</p>
+                </div>
+
+                
+                <div>
+                    <h4 class="font-heading font-semibold text-primary-burgundy mb-4 text-lg">Shop Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#featured" class="text-off-white hover:text-primary-burgundy transition">New Arrivals</a></li>
+                        <li><a href="#categories" class="text-off-white hover:text-primary-burgundy transition">All Categories</a></li>
+                        <li><a href="#story" class="text-off-white hover:text-primary-burgundy transition">Our Journey</a></li>
+                        <li><a href="#contact" class="text-off-white hover:text-primary-burgundy transition">Support</a></li>
+                    </ul>
+                </div>
+
+                
+                <div>
+                    <h4 class="font-heading font-semibold text-primary-burgundy mb-4 text-lg">Help</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-off-white hover:text-primary-burgundy transition">Shipping & Delivery</a></li>
+                        <li><a href="#" class="text-off-white hover:text-primary-burgundy transition">Returns & Exchanges</a></li>
+                        <li><a href="#" class="text-off-white hover:text-primary-burgundy transition">Size Guide</a></li>
+                    </ul>
+                </div>
+
+                
+                <div>
+                    <h4 class="font-heading font-semibold text-primary-burgundy mb-4 text-lg">Contact</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="font-semibold">Email:</span> <a href="mailto:asif24x6@gmail.com" class="text-off-white hover:text-primary-burgundy transition">asif24x6@gmail.com</a></li>
+                        <li><span class="font-semibold">Phone:</span> +91 9930399008</li>
+                        <li><span class="font-semibold">Shop:</span> Govandi, Mumbai</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center text-sm text-gray-400 mt-8 flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <span>&copy; <span id="current-year"></span> Freinlin. All rights reserved.</span>
+                <span class="hidden sm:inline">|</span> 
+                <a href="https://www.talentronaut.in/" target="_blank" 
+                   class="text-primary-burgundy hover:text-light-grey font-semibold transition duration-300 inline-flex items-center space-x-1">
+                    <span>Designed by Talentronaut Technologies</span>
+                    
+                    <img src="logo.jpeg" alt="Talentronauts Logo" class="footer-talentronaut-logo">
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // -- Cart Logic --
+        let cartItems = [];
+        const desktopCartLink = document.getElementById('desktop-cart-link');
+        const mobileCartLink = document.getElementById('mobile-cart-link');
+        const toast = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        const cartDisplay = document.getElementById('cart-counter-display');
+        const cartItemList = document.getElementById('cart-item-list');
+        const cartTotalDisplay = document.getElementById('cart-total');
+        const cartFooter = document.getElementById('cart-footer');
+        
+        const emptyCartHTML = `
+            <div class="text-center p-4">
+                <p class="text-xl text-dark-charcoal font-semibold">Your cart is currently empty. Start shopping our new collection!</p>
+            </div>
+        `;
+        const checkoutButtonHTML = `
+            <a href="#" id="checkout-button-link" class="inline-block px-10 py-3 text-lg font-bold text-off-white bg-primary-burgundy rounded-full hover:bg-dark-charcoal transition duration-300">
+                Proceed to Checkout
+            </a>
+        `;
+
+        function updateCartDisplay() {
+            let totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            let totalPrice = cartItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+            
+            // 1. Update counter in header/mobile menu
+            const text = `Cart (${totalItems})`;
+            desktopCartLink.textContent = text;
+            mobileCartLink.textContent = text;
+            cartDisplay.textContent = totalItems;
+            
+            // 2. Render item list
+            if (totalItems === 0) {
+                cartItemList.innerHTML = emptyCartHTML;
+                cartTotalDisplay.textContent = '₹ 0';
+                cartFooter.querySelector('.mt-6').innerHTML = `<a href="#featured" class="inline-block px-10 py-3 text-lg font-bold text-white bg-primary-burgundy rounded-full hover:bg-dark-charcoal transition duration-300">Start Shopping</a>`;
+            } else {
+                cartItemList.innerHTML = cartItems.map(item => `
+                    <div class="flex justify-between items-center border-b border-primary-burgundy/30 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">${item.name}</span>
+                            <span class="text-gray-500 text-sm">(x${item.quantity})</span>
+                        </div>
+                        <span class="text-dark-charcoal font-bold">₹ ${(item.quantity * item.price).toLocaleString('en-IN')}</span>
+                    </div>
+                `).join('');
+                
+                cartTotalDisplay.textContent = `₹ ${totalPrice.toLocaleString('en-IN')}`;
+                
+                // Show checkout button
+                cartFooter.querySelector('.mt-6').innerHTML = checkoutButtonHTML;
+                cartFooter.querySelector('#checkout-button-link').href = "#"; // Replace with your actual checkout URL
+            }
+        }
+
+        function showToast(productName) {
+            toastMessage.textContent = `${productName} added to cart!`;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function addToCart(productName, productPrice) {
+            const existingItem = cartItems.find(item => item.name === productName);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cartItems.push({
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1
+                });
+            }
+            
+            updateCartDisplay();
+            showToast(productName);
+        }
+        // -- End Cart Logic --
+
+        // Initialize display on load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartDisplay();
+            // Set Current Year in Footer
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+        
+        // Toggle Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when a link is clicked
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // SCROLL REVEAL LOGIC
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const delay = entry.target.getAttribute('data-delay') || '0s';
+                    entry.target.style.transitionDelay = delay;
+                    entry.target.classList.add('show-item');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1, 
+            rootMargin: '0px 0px -50px 0px' 
+        });
+
+        document.querySelectorAll('.hidden-item').forEach((element) => {
+            observer.observe(element);
+        });
+
+        // Initialize Hero section immediately as it's typically always visible
+        document.querySelector('#hero .hidden-item').classList.add('show-item');
+    </script>
+</body>
+</html>
