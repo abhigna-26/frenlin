@@ -78,31 +78,44 @@
             margin-left: 8px;
         }
         
-        /* FLOATING TALENTRONAUT ICON (COLOR ADJUSTED) */
-        .float-talentronaut {
-            position: fixed;
-            bottom: 1.5rem; 
-            right: 1.5rem; 
-            z-index: 60; 
-            background-color: #8B0000; /* PRIMARY BURGUNDY COLOR */
-            animation: float 4s ease-in-out infinite; 
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem; 
-            border-radius: 9999px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Stronger shadow for floating effect */
-        }
-        .float-talentronaut img {
-            height: 32px; /* h-8 */
-            width: 32px;  /* w-8 */
-            filter: brightness(3); /* Ensures logo is pure white/light against dark background */
-        }
-        @keyframes float {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-            100% { transform: translateY(0); }
-        }
+       /* FLOATING TALENTRONAUT ICON (LOGO-ADJUSTED LAYOUT) */
+.float-talentronaut {
+    position: fixed;
+    bottom: 1.5rem; 
+    right: 1.5rem; 
+    z-index: 60; 
+    background: transparent; /* remove circular bg for logo shape */
+    animation: float 4s ease-in-out infinite; 
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    padding: 0; 
+    border-radius: 0; /* sharp edges to match the logo shape */
+    box-shadow: none; /* no shadow, since logo already has internal depth */
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.float-talentronaut img {
+    height: 64px; /* larger size for clarity */
+    width: auto; 
+    display: block;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)); /* floating depth */
+    transition: transform 0.3s ease;
+}
+
+/* Gentle floating animation */
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+/* Optional hover effect */
+.float-talentronaut:hover img {
+    transform: scale(1.08);
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+}
+
 
         /* Product Card Hover Animation (Lift and Scale) */
         .product-card {
@@ -160,7 +173,7 @@
         class="float-talentronaut hover:bg-dark-charcoal transition duration-300"
         aria-label="Promoting Talentronaut - click to visit Talentronaut website">
         
-        <img src="logo.jpeg" alt="Talentronauts Logo" class="object-contain">
+        <img src="logo.jpg" alt="Talentronauts Logo" class="object-contain">
     </a>
 
     <header class="sticky top-0 z-40 bg-off-white/95 backdrop-blur-md shadow-md border-b border-light-grey">
@@ -423,7 +436,7 @@
                    class="text-primary-burgundy hover:text-light-grey font-semibold transition duration-300 inline-flex items-center space-x-1">
                     <span>Designed by Talentronaut Technologies</span>
                     
-                    <img src="logo.jpeg" alt="Talentronauts Logo" class="footer-talentronaut-logo">
+                    <img src="logo.jpg" alt="Talentronauts Logo" class="footer-talentronaut-logo">
                 </a>
             </div>
         </div>
